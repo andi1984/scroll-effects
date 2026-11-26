@@ -1,0 +1,39 @@
+{
+  "name": "@andi1984/scroll-frost",
+  "version": "0.1.0",
+  "description": "Frost that creeps over the window pane, in the page margins, as you read.",
+  "license": "MIT",
+  "author": "Andreas Sander (https://andi1984.dev)",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/andi1984/scroll-effects.git",
+    "directory": "packages/frost"
+  },
+  "keywords": ["react", "scroll", "reading-progress", "svg", "decorative", "generative"],
+  "type": "module",
+  "sideEffects": ["*.css"],
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./styles.css": "./styles.css"
+  },
+  "files": ["dist", "styles.css", "README.md"],
+  "scripts": {
+    "build": "tsup",
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "peerDependencies": {
+    "react": ">=18"
+  },
+  "dependencies": {
+    "@andi1984/scroll-effects-core": "^0.1.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

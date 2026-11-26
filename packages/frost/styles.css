@@ -1,0 +1,220 @@
+/* ---------------------------------------------------------------------------
+   @andi1984/scroll-frost — frost creeping over the window pane as you read
+
+   One fixed SVG over the viewport, drawn in CSS pixels; only the two margin
+   strips beside the text hold anything. The component writes one number,
+   `--p` (reading progress, 0 → 1), on the SVG. Each crystal turns it into
+   how far it has formed:
+
+     --g = clamp(0, (p − t0) / dur, 1)
+
+   and grows from its center as `--g` runs 0 → 1: arms first, then the side
+   branches and ribs, then the sparkle. Everything below is how a crystal
+   looks at a given `--g`.
+
+   Light and dark: the ice is darker than the paper in light mode and
+   lighter in dark mode. Dark applies under `.dark` / `[data-theme="dark"]`
+   on an ancestor, or with `prefers-color-scheme: dark` unless an ancestor
+   says `.light` / `[data-theme="light"]`. Override the `--frost-*` tokens
+   on `.frost` to match your palette.
+--------------------------------------------------------------------------- */
+
+@keyframes frost-twinkle {
+  0%,
+  100% {
+    scale: 0.55;
+    opacity: 0.35;
+  }
+  50% {
+    scale: 1;
+    opacity: 1;
+  }
+}
+
+.frost {
+  --frost-spine: #4f86b4;
+  --frost-branch: #6c9cc4;
+  --frost-twig: #8fb5d6;
+  --frost-glint: #2f6fa6;
+  --frost-haze: #d6e7f5;
+  --frost-haze-strength: 0.75;
+  --frost-water: #7aa8cf;
+
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  display: block;
+  overflow: visible;
+  pointer-events: none;
+}
+
+:where(.dark, [data-theme="dark"]) .frost {
+  --frost-spine: #d9ecfb;
+  --frost-branch: #b9d7f0;
+  --frost-twig: #8fb8dc;
+  --frost-glint: #ffffff;
+  --frost-haze: #9cc4e6;
+  --frost-haze-strength: 0.22;
+  --frost-water: #a9cdee;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not(.light, [data-theme="light"]) .frost {
+    --frost-spine: #d9ecfb;
+    --frost-branch: #b9d7f0;
+    --frost-twig: #8fb8dc;
+    --frost-glint: #ffffff;
+    --frost-haze: #9cc4e6;
+    --frost-haze-strength: 0.22;
+    --frost-water: #a9cdee;
+  }
+}
+
+/* The pane fogs up a little as the frost spreads, strongest at the frame. */
+.frost-haze {
+  opacity: calc(var(--p, 0) * var(--frost-haze-strength));
+}
+
+.frost-haze-stop {
+  stop-color: var(--frost-haze);
+  stop-opacity: 1;
+}
+
+.frost-haze-stop--clear {
+  stop-opacity: 0;
+}
+
+.frost-crystal {
+  --g: clamp(0, (var(--p, 0) - var(--t0)) / var(--dur), 1);
+  /* Freezing over again is slow… */
+  transition: opacity 6s ease-in;
+}
+
+/* Six-fold shapes are point-symmetric: the box's center is the crystal's. */
+.frost-grow {
+  transform-box: fill-box;
+  transform-origin: center;
+  scale: var(--g);
+  opacity: clamp(0, var(--g) * 3, 1);
+}
+
+.frost-arms,
+.frost-detail {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  /* Thin lines at every size, also while a crystal is still small. */
+  vector-effect: non-scaling-stroke;
+}
+
+.frost-arms {
+  stroke: var(--frost-spine);
+  stroke-width: 1.1;
+}
+
+.frost-detail {
+  stroke: var(--frost-branch);
+  stroke-width: 0.8;
+  opacity: clamp(0, (var(--g) - 0.35) * 2.5, 1);
+}
+
+.frost-crystal--plate .frost-detail,
+.frost-crystal--sector .frost-detail {
+  stroke: var(--frost-twig);
+}
+
+.frost-face {
+  fill: var(--frost-haze);
+  opacity: 0.55;
+  stroke: none;
+}
+
+/* --- Glints on finished tips --- */
+.frost-glint {
+  fill: none;
+  stroke: var(--frost-glint);
+  stroke-width: 0.3;
+  stroke-linecap: round;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+/* The sparkle lights up once the crystal has formed. */
+.frost-glint-at {
+  opacity: clamp(0, (var(--g) - 0.9) * 10, 1);
+}
+
+/* --- Melting (easter egg): hover a crystal and it thaws --- */
+.frost-hit {
+  fill: transparent;
+  stroke: none;
+  pointer-events: visible;
+}
+
+/* …thawing is quick. */
+.frost-crystal.is-melted {
+  opacity: 0;
+  transition: opacity 1.4s ease-out;
+}
+
+.frost-crystal.is-melted .frost-hit {
+  pointer-events: none;
+}
+
+.frost-drops,
+.frost-drops * {
+  pointer-events: none;
+}
+
+.frost-drop {
+  fill: var(--frost-water);
+  opacity: 0.9;
+  transform-box: fill-box;
+}
+
+.frost-trail {
+  fill: none;
+  stroke: var(--frost-water);
+  stroke-width: 1.2;
+  stroke-linecap: round;
+  stroke-dasharray: 1 2;
+  stroke-dashoffset: 1;
+  opacity: 0.6;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .frost-glint {
+    animation: frost-twinkle 3.6s ease-in-out var(--d, 0s) infinite;
+  }
+}
+
+/*
+  Only where the margins have room. Keep in sync with FROST_SPACE_QUERY in
+  src/preference.ts — or override both for a custom layout.
+*/
+@media (max-width: 1365.98px), (max-height: 479.98px) {
+  .frost {
+    display: none;
+  }
+}
+
+@media print {
+  .frost {
+    display: none;
+  }
+}
+
+/*
+  A calmer page asked for: no frost at all, not a still one. The component
+  doesn't render it either; this is the backstop. Keep in sync with
+  QUIET_QUERY in @andi1984/scroll-effects-core.
+*/
+@media (prefers-reduced-motion: reduce),
+  (prefers-contrast: more),
+  (forced-colors: active),
+  (prefers-reduced-data: reduce) {
+  .frost {
+    display: none;
+  }
+}

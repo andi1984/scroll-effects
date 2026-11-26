@@ -1,0 +1,29 @@
+{
+  "name": "scroll-effects",
+  "private": true,
+  "description": "Seeded, decorative scroll-progress effects for reading pages: a grapevine, frost on the window pane, …",
+  "license": "MIT",
+  "workspaces": [
+    "packages/core",
+    "packages/vine",
+    "packages/frost",
+    "demo"
+  ],
+  "scripts": {
+    "build": "npm run build -w packages/core && npm run build -w packages/vine -w packages/frost",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "dev": "npm run build && npm run dev -w demo",
+    "demo:build": "npm run build && npm run build -w demo"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "@types/react": "^19.3.3",
+    "@types/react-dom": "^19.3.0",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "tsup": "^9.0.0",
+    "typescript": "^6.0.3"
+  }
+}

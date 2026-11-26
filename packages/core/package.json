@@ -1,0 +1,35 @@
+{
+  "name": "@andi1984/scroll-effects-core",
+  "version": "0.1.0",
+  "description": "Shared helpers for @andi1984 scroll effects: visitor preference, seeds, margin layout.",
+  "license": "MIT",
+  "author": "Andreas Sander (https://andi1984.dev)",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/andi1984/scroll-effects.git",
+    "directory": "packages/core"
+  },
+  "keywords": ["react", "scroll", "reading-progress", "svg", "decorative", "generative"],
+  "type": "module",
+  "sideEffects": ["*.css"],
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": ["dist", "README.md"],
+  "scripts": {
+    "build": "tsup",
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "peerDependencies": {
+    "react": ">=18"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

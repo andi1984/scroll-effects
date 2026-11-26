@@ -1,0 +1,47 @@
+:root {
+  color-scheme: light;
+  --paper: #fcfdff;
+  --ink: #17283f;
+  --rule: #d8dee8;
+  font-family: system-ui, sans-serif;
+}
+:root.dark {
+  color-scheme: dark;
+  --paper: #101923;
+  --ink: #f3f4f5;
+  --rule: #2a3644;
+}
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+}
+body > header {
+  border-bottom: 1px solid var(--rule);
+}
+.wrap {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 0 64px;
+  box-sizing: border-box;
+}
+header .wrap {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  min-height: 64px;
+}
+header strong {
+  margin-right: auto;
+}
+button {
+  font: inherit;
+  padding: 4px 10px;
+}
+button[aria-pressed="true"] {
+  font-weight: 700;
+}
+main p {
+  max-width: 68ch;
+  line-height: 1.7;
+}

@@ -1,0 +1,39 @@
+{
+  "name": "@andi1984/scroll-vine",
+  "version": "0.1.0",
+  "description": "A seeded grapevine that grows in the page margin as you read.",
+  "license": "MIT",
+  "author": "Andreas Sander (https://andi1984.dev)",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/andi1984/scroll-effects.git",
+    "directory": "packages/vine"
+  },
+  "keywords": ["react", "scroll", "reading-progress", "svg", "decorative", "generative"],
+  "type": "module",
+  "sideEffects": ["*.css"],
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./styles.css": "./styles.css"
+  },
+  "files": ["dist", "styles.css", "README.md"],
+  "scripts": {
+    "build": "tsup",
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "peerDependencies": {
+    "react": ">=18"
+  },
+  "dependencies": {
+    "@andi1984/scroll-effects-core": "^0.1.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

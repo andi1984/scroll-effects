@@ -1,0 +1,330 @@
+/* ---------------------------------------------------------------------------
+   @andi1984/scroll-vine — seeded scroll-progress grapevine
+
+   One fixed SVG, drawn in CSS pixels: climbs from the bottom left corner,
+   runs along the header's rule, then hangs down the left margin. The component moves the growing tip and writes each
+   organ's age; everything here is how the plant looks at a given age. It is
+   the same plant in light and dark mode.
+--------------------------------------------------------------------------- */
+
+/* A growth spurt shakes each leaf once, and it settles. */
+@keyframes vine-rustle {
+  0% {
+    rotate: 0deg;
+  }
+  18% {
+    rotate: var(--sway);
+  }
+  42% {
+    rotate: calc(var(--sway) * -0.55);
+  }
+  68% {
+    rotate: calc(var(--sway) * 0.26);
+  }
+  100% {
+    rotate: 0deg;
+  }
+}
+
+@keyframes vine-lift {
+  to {
+    translate: 0 calc(var(--vine-lift, 0px) * -1);
+  }
+}
+
+.vine {
+  --vine-wood: #86714a;
+  --vine-bark: #7a5a3a;
+  --vine-bark-dark: #4a3523;
+  --vine-bark-light: #a88a64;
+  --vine-stem: #4f8a52;
+  --vine-shoot: #93c76b;
+  --vine-line: #23583a;
+  --vine-leaf-0: #57a763;
+  --vine-leaf-1: #4a995b;
+  --vine-leaf-2: #68b56c;
+  --vine-leaf-shade: #2c7446;
+  --vine-leaf-young: #b9db6f;
+  --vine-vein: #d5edbd;
+  --vine-tendril: #63a559;
+  --vine-berry-unripe: #a9c96a;
+  --vine-berry: #4b4199;
+  --vine-berry-line: #2c2566;
+
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  display: block;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.vine--red {
+  --vine-berry: #b33a57;
+  --vine-berry-line: #6f1f35;
+}
+
+.vine--white {
+  --vine-berry: #d3c75a;
+  --vine-berry-line: #857c2a;
+  --vine-berry-unripe: #9cc46c;
+}
+
+/*
+  Easter egg (attachPruning in Vine.tsx): leaf blades and berries are the
+  only hit-testable parts, so hovering one can prune or harvest it. They
+  sit in the empty margin, never over page content.
+*/
+.vine-blade,
+.vine-berry {
+  pointer-events: visiblePainted;
+}
+
+.vine .is-cut {
+  display: none;
+}
+
+.vine-fallen,
+.vine-fallen * {
+  pointer-events: none;
+}
+
+.vine-fallen > g {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+/* --- Stems: young green shoots that thicken with age --- */
+/*
+  Every green stem is a shoot, the main one out of the trunk included, so
+  they share one young green; only the trunk is brown.
+*/
+.vine-stem {
+  fill: color-mix(in oklab, var(--vine-shoot) 45%, var(--vine-stem));
+  stroke: var(--vine-line);
+  stroke-width: 0.7;
+  stroke-linejoin: round;
+}
+
+/* Old wood at the base: drawn over the stem, fading out upward (mask). */
+.vine-trunk {
+  fill: var(--vine-bark);
+  stroke: var(--vine-bark-dark);
+  stroke-width: 0.8;
+  stroke-linejoin: round;
+}
+
+.vine-bark-groove,
+.vine-bark-crack,
+.vine-bark-ridge {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.vine-bark-groove {
+  stroke: var(--vine-bark-dark);
+  stroke-width: 1.1;
+}
+
+.vine-bark-crack {
+  stroke: var(--vine-bark-dark);
+  stroke-width: 0.8;
+}
+
+.vine-bark-ridge {
+  stroke: var(--vine-bark-light);
+  stroke-width: 0.9;
+  opacity: 0.7;
+}
+
+.vine-knob {
+  fill: var(--vine-bark);
+  stroke: var(--vine-bark-dark);
+  stroke-width: 0.8;
+}
+
+.vine-knob-scar {
+  fill: var(--vine-bark-dark);
+  opacity: 0.6;
+}
+
+.vine-shoot-hit {
+  fill: none;
+  stroke: transparent;
+  stroke-width: 12;
+  stroke-linecap: round;
+  pointer-events: visibleStroke;
+}
+
+.vine-tendril,
+.vine-stalk,
+.vine-petiole {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Drawn by dash offset: pathLength is 1, so the offset is "how much is left". */
+.vine-tendril,
+.vine-stalk {
+  stroke-dasharray: 1;
+}
+
+.vine-tendril {
+  stroke: var(--vine-tendril);
+  stroke-width: 1.3;
+}
+
+.vine-stalk {
+  stroke: var(--vine-stem);
+  stroke-width: 1.5;
+}
+
+/* The stub a harvest leaves behind dries off: brown and a little thinner. */
+.vine-stub.is-harvested {
+  stroke: var(--vine-wood);
+  stroke-width: 1.2;
+}
+
+.vine-petiole {
+  stroke: var(--vine-stem);
+  stroke-width: 1.7;
+}
+
+/* --- Leaves: `--age` runs 0 → 1 as a leaf matures and darkens --- */
+.vine-leaf--0 {
+  --leaf: var(--vine-leaf-0);
+}
+.vine-leaf--1 {
+  --leaf: var(--vine-leaf-1);
+}
+.vine-leaf--2 {
+  --leaf: var(--vine-leaf-2);
+}
+
+.vine-blade {
+  fill: color-mix(
+    in oklab,
+    var(--vine-leaf-young),
+    var(--leaf) calc(var(--age, 1) * 100%)
+  );
+}
+
+.vine-blade-shade {
+  fill: var(--vine-leaf-shade);
+  opacity: calc(0.12 + var(--age, 1) * 0.26);
+}
+
+.vine-vein {
+  fill: none;
+  stroke: var(--vine-vein);
+  stroke-width: 2.1;
+  stroke-linecap: round;
+  opacity: 0.8;
+}
+
+.vine-blade-edge {
+  fill: none;
+  stroke: var(--vine-line);
+  stroke-width: 2.6;
+  stroke-linejoin: round;
+}
+
+/* --- Fruit: `--ripe` runs 0 → 1 --- */
+.vine-berry {
+  fill: color-mix(
+    in oklab,
+    var(--vine-berry-unripe),
+    var(--vine-berry) calc(var(--ripe, 1) * 100%)
+  );
+  stroke: color-mix(
+    in oklab,
+    var(--vine-line),
+    var(--vine-berry-line) calc(var(--ripe, 1) * 100%)
+  );
+  stroke-width: 0.8;
+}
+
+.vine-berry-shine {
+  fill: #fff;
+  opacity: 0.5;
+}
+
+/* --- Growing tip --- */
+.vine-bud {
+  fill: var(--vine-shoot);
+  stroke: var(--vine-line);
+  stroke-width: 0.7;
+  stroke-linejoin: round;
+}
+
+.vine-bud-back {
+  fill: var(--vine-leaf-young);
+  stroke: var(--vine-line);
+  stroke-width: 0.7;
+  stroke-linejoin: round;
+}
+
+/*
+  The header scrolls away with the page and the plant is fixed, so for the
+  first `--vine-lift` pixels of scroll the plant moves up with the header,
+  then stays put: what `position: sticky` would do, as a scroll timeline.
+  Not an effect, so it is not behind the reduced-motion query. The component
+  does the same from a scroll listener where timelines aren't supported.
+*/
+@supports (animation-timeline: scroll()) {
+  .vine {
+    animation: vine-lift linear both;
+    animation-timeline: scroll(root block);
+    animation-range: 0px var(--vine-lift, 0px);
+  }
+}
+
+/*
+  Motion is opt-in: with reduced motion there's no vine at all (below and
+  QUIET_QUERY), so these only ever apply when motion is welcome.
+*/
+@media (prefers-reduced-motion: no-preference) {
+  .vine-stub {
+    transition:
+      stroke 2.4s ease-out,
+      stroke-width 2.4s ease-out;
+  }
+
+  .vine.is-rustling .vine-sway {
+    animation: vine-rustle 1.5s ease-in-out both;
+  }
+}
+
+/*
+  Only where the left margin has room: at >= 1366px the text starts at least
+  119px in, and the strip ends 22px short of it. Keep in sync with
+  VINE_SPACE_QUERY (src/preference.ts) — or override both for a custom layout.
+*/
+@media (max-width: 1365.98px), (max-height: 479.98px) {
+  .vine {
+    display: none;
+  }
+}
+
+@media print {
+  .vine {
+    display: none;
+  }
+}
+
+/*
+  A calmer page asked for: no vine at all, not a still one. The component
+  doesn't render it either; this is the backstop. Keep in sync with
+  QUIET_QUERY in @andi1984/scroll-effects-core.
+*/
+@media (prefers-reduced-motion: reduce),
+  (prefers-contrast: more),
+  (forced-colors: active),
+  (prefers-reduced-data: reduce) {
+  .vine {
+    display: none;
+  }
+}
